@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Gr3yPh4ntom</title>
+    <style>
+        :root {
+            --primary-color: #00ff00;
+            --secondary-color: #00aaff;
+            --bg-color: #0a0a0a;
+            --text-color: #e0e0e0;
+            --border-color: #333;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .main-container {
+            width: 80%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+        
+        /* 语言切换单选按钮 */
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .language-radio {
+            display: none;
+        }
+        
+        .language-label {
+            background: rgba(30, 30, 30, 0.7);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .language-radio:checked + .language-label {
+            background: var(--primary-color);
+            color: black;
+            border-color: var(--primary-color);
+        }
+        
+        /* 语言内容切换 - 修复后的选择器 */
+        [data-lang] {
+            display: none;
+        }
+        
+        #lang-zh:checked ~ .main-container [data-lang="zh"],
+        #lang-en:checked ~ .main-container [data-lang="en"], 
+        #lang-ja:checked ~ .main-container [data-lang="ja"] {
+            display: block;
+        }
+        
+        /* 默认显示中文 */
+        #lang-zh:not(:checked):not(:target) ~ .main-container [data-lang="zh"] {
+            display: block;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        h2 {
+            color: var(--secondary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 3rem;
+        }
+        
+        .repo-container {
+            margin: 15px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: rgba(30, 30, 30, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .repo-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.2);
+            border-color: var(--secondary-color);
+        }
+        
+        .repo-container a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        
+        .repo-container a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .repos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        a {
+            color: var(--primary-color);
+            transition: color 0.3s;
+			text-decoration:none;
+        }
+        
+        a:hover {
+            color: var(--secondary-color);
+        }
+        
+        @keyframes flash {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        .cursor {
+            animation: flash 0.8s infinite;
+            color: var(--primary-color);
+        }
+        
+        .stack-container {
+            background-color: rgba(30, 30, 30, 0.5);
+            padding: 1.5rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+        
+        .stack-item {
+            margin: 0.8rem 0;
+            text-align: left;
+        }
+        
+        .stack-bar {
+            height: 10px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+        
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        /* 滚动动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-on-scroll {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+        
+        /* 媒体查询 */
+        @media (max-width: 768px) {
+            .repos {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-container {
+                width: 95%;
+            }
+            
+            .language-switcher {
+                top: 10px;
+                right: 10px;
+            }
+        }
+		hr{
+			color:#333;
+		}
+    </style>
+</head>
+<body>
+    <!-- 语言切换单选按钮 -->
+    <input type="radio" id="lang-zh" name="language" class="language-radio" checked>
+    <input type="radio" id="lang-en" name="language" class="language-radio">
+    <input type="radio" id="lang-ja" name="language" class="language-radio">
+    
+    <div class="language-switcher">
+        <label for="lang-zh" class="language-label">中文</label>
+        <label for="lang-en" class="language-label">English</label>
+        <label for="lang-ja" class="language-label">日本語</label>
+    </div>
+
+    <div class='main-container'>
+        <img src='gr3yph-avatar.jpg' class="profile-img animate-on-scroll delay-1">
+        
+        <!-- 中文内容 -->
+        <div data-lang="zh">
+            <h1 class="animate-on-scroll delay-1">你好。</h1>
+            <h1 class="animate-on-scroll delay-2">我是Gr3yPh4ntom.<span class='cursor'>■</span></h1>
+            <p class="animate-on-scroll delay-2">一名来自中国的高中生，对<b>黑客技术、编程和游戏（尤其是蔚蓝档案）</b>充满热情。</p>
+            <p class="animate-on-scroll delay-3">去年开始学习网络安全，已经掌握了不少知识，但实际应用比理论复杂得多。</p>
+            <p class="animate-on-scroll delay-3">曾经对英语感兴趣，后来觉得无聊。现在自学日语中，不过还是觉得头疼。</p>
+        </div>
+        
+        <!-- 英文内容 -->
+        <div data-lang="en">
+            <h1 class="animate-on-scroll delay-1">Hello.</h1>
+            <h1 class="animate-on-scroll delay-2">I am Gr3yPh4ntom.<span class='cursor'>■</span></h1>
+            <p class="animate-on-scroll delay-2">A senior high student from China with a passionate curiosity for <b>Hacking, Coding, and Gaming (especially Blue Archive)</b>.</p>
+            <p class="animate-on-scroll delay-3">I embarked on my Network Security journey last year and have since acquired substantial knowledge. However, real-world application proves far more complex than theoretical study.</p>
+            <p class="animate-on-scroll delay-3">While I initially pursued English with enthusiasm, I later found it unengaging. Currently, I'm self-studying Japanese, though language acquisition through rote memorization remains a challenge for me.</p>
+        </div>
+        
+        <!-- 日文内容 -->
+        <div data-lang="ja">
+            <h1 class="animate-on-scroll delay-1">こんにちは。</h1>
+            <h1 class="animate-on-scroll delay-2">私はGr3yPh4ntomです。<span class='cursor'>■</span></h1>
+            <p class="animate-on-scroll delay-2">中国の高校生で、<b>ハッキング、プログラミング、ゲーム（特にブルーアーカイブ）</b>に強い関心を持っています。</p>
+            <p class="animate-on-scroll delay-3">昨年からネットワークセキュリティを学び始め、多くの知識を習得しましたが、実践は理論よりもはるかに複雑です。</p>
+            <p class="animate-on-scroll delay-3">以前は英語に興味がありましたが、後に退屈に感じました。現在は日本語を独学していますが、暗記のプロセスはやはり苦痛です。</p>
+        </div>
+
+        <!-- 编程能力 -->
+        <div data-lang="zh">
+            <h2 class="animate-on-scroll delay-4">编程能力</h2>
+        </div>
+        <div data-lang="en">
+            <h2 class="animate-on-scroll delay-4">Coding Proficiency</h2>
+        </div>
+        <div data-lang="ja">
+            <h2 class="animate-on-scroll delay-4">プログラミングスキル</h2>
+        </div>
+        
+        <div class='stack-container animate-on-scroll delay-4'>
+            <div class="stack-item">
+                <span data-lang="zh">Python</span>
+                <span data-lang="en">Python</span>
+                <span data-lang="ja">Python</span>
+                <div class="stack-bar" style="width: 90%"></div>
+            </div>
+            <div class="stack-item">
+                <span data-lang="zh">PHP</span>
+                <span data-lang="en">PHP</span>
+                <span data-lang="ja">PHP</span>
+                <div class="stack-bar" style="width: 70%"></div>
+            </div>
+            <div class="stack-item">
+                <span data-lang="zh">HTML/CSS</span>
+                <span data-lang="en">HTML/CSS</span>
+                <span data-lang="ja">HTML/CSS</span>
+                <div class="stack-bar" style="width: 60%"></div>
+            </div>
+            <div class="stack-item">
+                <span data-lang="zh">JavaScript</span>
+                <span data-lang="en">JavaScript</span>
+                <span data-lang="ja">JavaScript</span>
+                <div class="stack-bar" style="width: 40%"></div>
+            </div>
+            <div class="stack-item">
+                <span data-lang="zh">C#</span>
+                <span data-lang="en">C#</span>
+                <span data-lang="ja">C#</span>
+                <div class="stack-bar" style="width: 30%"></div>
+            </div>
+            <div class="stack-item">
+                <span data-lang="zh">C/Java</span>
+                <span data-lang="en">C/Java</span>
+                <span data-lang="ja">C/Java</span>
+                <div class="stack-bar" style="width: 20%"></div>
+            </div>
+        </div>
+
+        <!-- 项目仓库 -->
+        <div data-lang="zh">
+            <h2 class="animate-on-scroll delay-1">我的仓库</h2>
+        </div>
+        <div data-lang="en">
+            <h2 class="animate-on-scroll delay-1">My Repositories</h2>
+        </div>
+        <div data-lang="ja">
+            <h2 class="animate-on-scroll delay-1">マイリポジトリ</h2>
+        </div>
+        
+        <div class='repos'>
+            <div class='repo-container animate-on-scroll delay-1'>
+                <a href='http://github.com/gr3yph/synflooder'>SYNFlooder</a>
+                <div data-lang="zh">
+                    <p>用Python编写的轻量级但功能强大的TCP-SYN洪水工具。支持UDP，专为网络压力测试优化。</p>
+                </div>
+                <div data-lang="en">
+                    <p>A lightweight yet powerful TCP-SYN flood tool written in Python. Features UDP support and optimized performance for network stress testing.</p>
+                </div>
+                <div data-lang="ja">
+                    <p>Pythonで書かれた軽量で強力なTCP-SYNフラッドツール。UDPをサポートし、ネットワーク負荷テストに最適化されています。</p>
+                </div>
+            </div>
+            <div class='repo-container animate-on-scroll delay-2'>
+                <a href='http://github.com/gr3yph/wasac'>Wasac</a>
+                <div data-lang="zh">
+                    <p>Web应用安全认证破解工具，设计作为BurpSuite Intruder的替代品。结合速度与效率，也可作为有效的模糊测试工具。正在申请加入Kali Linux。</p>
+                </div>
+                <div data-lang="en">
+                    <p>Web Application Security Authentication Cracker designed as an alternative to BurpSuite Intruder. Combines speed with efficiency, doubling as an effective fuzzer. Currently under consideration for Kali Linux inclusion.</p>
+                </div>
+                <div data-lang="ja">
+                    <p>BurpSuite Intruderの代替として設計されたWebアプリケーション認証クラッカー。効率と速度を兼ね備え、ファジングツールとしても有効です。Kali Linuxへの追加を検討中。</p>
+                </div>
+            </div>
+            <div class='repo-container animate-on-scroll delay-3'>
+                <a href='http://github.com/gr3yph/unix-in-js'>Unix in JS</a>
+                <div data-lang="zh">
+                    <p>基于HTML5、CSS3和JavaScript构建的浏览器内类UNIX操作系统。具有基于localStorage的虚拟文件系统，支持JS和Python环境中的自定义脚本执行。</p>
+                </div>
+                <div data-lang="en">
+                    <p>A browser-based UNIX-like operating system built with HTML5, CSS3, and JavaScript. Features a virtual filesystem with localStorage backend and supports custom script execution in both JS and Python environments.</p>
+                </div>
+                <div data-lang="ja">
+                    <p>HTML5、CSS3、JavaScriptで構築されたブラウザベースのUNIXライクOS。localStorageをバックエンドとする仮想ファイルシステムを備え、JSとPython環境でのカスタムスクリプト実行をサポートします。</p>
+                </div>
+            </div>
+            <div class='repo-container animate-on-scroll delay-4'>
+                <a href='http://github.com/gr3yph/'>Explore More</a>
+                <div data-lang="zh">
+                    <p>访问我的GitHub主页发现更多项目</p>
+                </div>
+                <div data-lang="en">
+                    <p>Visit my GitHub profile to discover additional projects</p>
+                </div>
+                <div data-lang="ja">
+                    <p>GitHubプロフィールで他のプロジェクトを探す</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 联系方式 -->
+        <div data-lang="zh">
+            <h2 class="animate-on-scroll delay-1">联系方式</h2>
+            <p class="animate-on-scroll delay-2">出于隐私考虑，我限制公开联系方式。可通过以下方式安全联系：</p>
+        </div>
+        <div data-lang="en">
+            <h2 class="animate-on-scroll delay-1">Contact</h2>
+            <p class="animate-on-scroll delay-2">For privacy reasons, I maintain limited public contact channels. Secure correspondence can be initiated via:</p>
+        </div>
+        <div data-lang="ja">
+            <h2 class="animate-on-scroll delay-1">連絡先</h2>
+            <p class="animate-on-scroll delay-2">プライバシー保護のため、公開連絡先を制限しています。安全な連絡方法:</p>
+        </div>
+        
+        <p class="animate-on-scroll delay-3"><a href='mailto:gr3yph4ntom@onionmail.org'>gr3yph4ntom@onionmail.org</a></p>
+        
+        <div class="animate-on-scroll delay-4" style="margin-top: 3rem; font-size: 0.9em; color: #666;">
+            <div data-lang="zh">
+                <p>"越是沉默，越能听见。" — Kali Linux格言</p>
+            </div>
+            <div data-lang="en">
+                <p>"The quieter you become, the more you are able to hear." — Kali Linux motto</p>
+            </div>
+            <div data-lang="ja">
+                <p>"静かであればあるほど、より多くを聞くことができる。" — Kali Linux モットー</p>
+            </div>
+        </div>
+		 <div style='display:flex;align-items: center;'>
+			<div>
+				<p>Tourists Counter</p><img src='https://count.getloli.com/@gr3yphhome?theme=nixietube-1' height='25px' />
+			</div>
+			<div style='margin-left:30px;'>
+        		<span>©Gr3yPh4ntom 2025. All rights reserved.</span> <a href="https://icp.gov.moe/?keyword=20256772" target="_blank">萌ICP备20256772号</a>
+			</div>
+        </div>
+    </div>
+</body>
+</html>
